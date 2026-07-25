@@ -1,0 +1,24 @@
+# Go service / library CI — replace {{REPO}} as needed
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.26.x"
+      - name: Test
+        run: go test -race ./...
+      - name: Vet
+        run: go vet ./...
