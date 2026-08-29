@@ -1,4 +1,5 @@
 # Go service / library CI — replace {{REPO}} as needed
+# Actions pinned to full SHAs (OpenSSF Scorecard / supply-chain hygiene).
 name: CI
 
 on:
@@ -18,11 +19,35 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
-      - uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5.6.0
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/setup-go@d35c59abb061a4a6fb18e82ac0862c26744d6ab5 # v5.5.0
         with:
           go-version: "1.26.x"
+      - name: Checkout sibling replace modules
+        run: |
+          set -euo pipefail
+          mapfile -t dests < <(grep -E '=>[[:space:]]+\.\./' go.mod | sed -E 's/.*=>[[:space:]]*([^[:space:]]+).*/\1/' | sort -u || true)
+          for dest in "${dests[@]:-}"; do
+            [ -z "$dest" ] && continue
+            name="$(basename "$dest")"
+            case "$name" in
+              orbit-*) ;;
+              *) continue ;;
+            esac
+            mkdir -p "$(dirname "$dest")"
+            if [ ! -d "$dest/.git" ] && [ ! -f "$dest/go.mod" ]; then
+              echo "Cloning ${name} -> ${dest}"
+              git clone --depth 1 "https://github.com/manovaspace/${name}.git" "$dest"
+            fi
+          done
       - name: Test
         run: go test -race ./...
       - name: Vet
         run: go vet ./...
+      - name: govulncheck
+        run: |
+          go install golang.org/x/vuln/cmd/govulncheck@v1.7.0
+          govulncheck ./...
+      - uses: golangci/golangci-lint-action@9fae48acfc02a90574d7c304a1758ef9895495fa # v7.0.1
+        with:
+          version: v2.1.6
