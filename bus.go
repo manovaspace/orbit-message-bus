@@ -23,10 +23,10 @@ type Bus interface {
 
 // Config holds NATS connection options.
 type Config struct {
-	URL          string
-	MaxAttempts  int
-	Source       string
-	Version      string
+	URL         string
+	MaxAttempts int
+	Source      string
+	Version     string
 }
 
 func (c *Config) attempts() int {
