@@ -1,0 +1,11 @@
+{
+	"fields": {
+		"correlation_id": "string",
+		"id": "string",
+		"metadata": "object",
+		"payload": "object",
+		"timestamp": "string",
+		"trace_id": "string?",
+		"type": "string"
+	}
+}
