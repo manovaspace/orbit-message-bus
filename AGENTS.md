@@ -20,7 +20,8 @@ Services depend only on `messagebus.Bus`; `transport.FromEnv` picks the transpor
 - `inproc/` — in-memory `Bus` (`inproc.New(cfg)`), one dispatcher per subscription, no network.
 - `redisbus/` — Redis Streams `Bus` (`redisbus.New(url, cfg)`); stream `orbit:<subject>`, group `orbit-<sanitized subject>`, acks, `XAUTOCLAIM` redelivery, DLQ stream `orbit:<subject>.dlq`.
 - `transport/` — factory for `inproc`, `redis` and `nats`; the only package importing all three.
-- `bustest/` — shared conformance suite (`bustest.Conformance`) and `bustest.UniqueDomain`.
+- `outbox/` — Postgres transactional outbox for pgx v5: `Insert` writes an event in the caller's transaction, `MigrationSQL` is the goose migration each service copies, `Relay` (`RunOnce`, `Run`) publishes pending rows to any `messagebus.Bus`. At-least-once, ordered batches, `FOR UPDATE SKIP LOCKED`; handlers must be idempotent on the envelope `id`.
+- `bustest/` — shared conformance suite (`bustest.Conformance`), `bustest.UniqueDomain` and `bustest.CheckEventSchema`, which pins an event struct's JSON shape against a committed file (`UPDATE_EVENT_SCHEMAS=1 go test ./...` refreshes it). `testdata/envelope.schema.json` pins the library's own envelope.
 
 ## Commands
 
@@ -39,5 +40,14 @@ go test ./... -race -count=1 -v
 ```
 
 Each run uses `bustest.UniqueDomain()` and deletes the streams, consumers, groups and Redis keys it created.
+
+The outbox tests skip unless `TEST_DATABASE_URL` is set; each test creates and drops its own random schema:
+
+```bash
+TEST_DATABASE_URL='postgres://postgres:postgres@127.0.0.1:5432/test?sslmode=disable' \
+go test ./outbox/ -race -count=1 -v
+```
+
+Refresh committed event schemas with `UPDATE_EVENT_SCHEMAS=1 go test ./...`.
 
 Local NATS: `nats://localhost:10422` (ADR-006).
