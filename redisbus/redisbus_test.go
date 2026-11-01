@@ -40,7 +40,7 @@ func TestConformance(t *testing.T) {
 func orbitKeys(t *testing.T, url string) map[string]bool {
 	t.Helper()
 	client := redisClient(t, url)
-	defer client.Close()
+	defer func() { _ = client.Close() }()
 
 	keys := make(map[string]bool)
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
@@ -58,7 +58,7 @@ func orbitKeys(t *testing.T, url string) map[string]bool {
 func deleteKeys(t *testing.T, url string, keys ...string) {
 	t.Helper()
 	client := redisClient(t, url)
-	defer client.Close()
+	defer func() { _ = client.Close() }()
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
