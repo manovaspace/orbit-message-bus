@@ -13,7 +13,7 @@ const DefaultMaxAttempts = 3
 // Handler processes a validated envelope.
 type Handler func(ctx context.Context, env Envelope) error
 
-// Bus is the Orbit NATS message bus port.
+// Bus is the Orbit message bus port.
 type Bus interface {
 	Publish(ctx context.Context, subject string, env Envelope) error
 	Subscribe(ctx context.Context, subject string, handler Handler) error
@@ -21,7 +21,7 @@ type Bus interface {
 	Close() error
 }
 
-// Config holds NATS connection options.
+// Config holds message bus options. URL is used by the NATS transport.
 type Config struct {
 	URL         string
 	MaxAttempts int
@@ -67,6 +67,29 @@ func ValidateSubject(subject string) error {
 		}
 	}
 	return nil
+}
+
+// ValidateSubscriptionSubject checks a subject for Subscribe: a normal
+// {domain}.{entity}.{action} subject, or its dead-letter subject
+// {domain}.{entity}.{action}.dlq. Publish uses ValidateSubject and therefore
+// never accepts the dead-letter shape.
+func ValidateSubscriptionSubject(subject string) error {
+	if ValidateSubject(subject) == nil {
+		return nil
+	}
+	parts := splitSubject(subject)
+	if len(parts) == 4 && parts[3] == "dlq" {
+		return ValidateSubject(parts[0] + "." + parts[1] + "." + parts[2])
+	}
+	return fmt.Errorf("messagebus: subject %q must be {domain}.{entity}.{action}[.dlq]", subject)
+}
+
+// subscriptionDomain returns the domain segment of a subscribe subject.
+func subscriptionDomain(subject string) (string, error) {
+	if err := ValidateSubscriptionSubject(subject); err != nil {
+		return "", err
+	}
+	return splitSubject(subject)[0], nil
 }
 
 func splitSubject(subject string) []string {

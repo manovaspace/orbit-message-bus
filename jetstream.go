@@ -38,7 +38,7 @@ func New(cfg Config) (Bus, error) {
 
 func (b *natsBus) Publish(ctx context.Context, subject string, env Envelope) error {
 	if err := ValidateSubject(subject); err != nil {
-		return err
+		return fmt.Errorf("%w: %s", ErrInvalidSubject, err)
 	}
 	if env.Type != subject {
 		return fmt.Errorf("messagebus: envelope type %q must match subject %q", env.Type, subject)
@@ -54,7 +54,7 @@ func (b *natsBus) Publish(ctx context.Context, subject string, env Envelope) err
 }
 
 func (b *natsBus) Subscribe(ctx context.Context, subject string, handler Handler) error {
-	if err := ValidateSubject(subject); err != nil {
+	if err := ValidateSubscriptionSubject(subject); err != nil {
 		return err
 	}
 	if err := b.ensureStream(subject); err != nil {
@@ -82,6 +82,19 @@ func (b *natsBus) handleMessage(ctx context.Context, subject string, msg *nats.M
 
 	ctx = otel.GetTextMapPropagator().Extract(ctx, headerCarrier(msg.Header))
 
+	// Dead-letter messages carry the failure reason as a NATS header; surface
+	// it on the delivered envelope so Bus consumers can read it without
+	// reaching into transport headers. The stored message keeps its original
+	// bytes.
+	if reason := msg.Header.Get("dlq-reason"); reason != "" {
+		metadata := make(map[string]string, len(env.Metadata)+1)
+		for k, v := range env.Metadata {
+			metadata[k] = v
+		}
+		metadata["dlq_reason"] = reason
+		env.Metadata = metadata
+	}
+
 	var lastErr error
 	max := b.cfg.MaxAttemptsOrDefault()
 	for attempt := 1; attempt <= max; attempt++ {
@@ -94,12 +107,7 @@ func (b *natsBus) handleMessage(ctx context.Context, subject string, msg *nats.M
 			break
 		}
 		if attempt < max {
-			delay := RetryDelay(attempt)
-			if err := msg.NakWithDelay(delay); err != nil {
-				time.Sleep(delay)
-			} else {
-				return
-			}
+			time.Sleep(RetryDelay(attempt))
 		}
 	}
 
@@ -131,7 +139,7 @@ func (b *natsBus) Close() error {
 }
 
 func (b *natsBus) ensureStream(subject string) error {
-	domain, err := DomainFromSubject(subject)
+	domain, err := subscriptionDomain(subject)
 	if err != nil {
 		return err
 	}
