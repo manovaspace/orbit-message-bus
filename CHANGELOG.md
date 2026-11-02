@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.1.0 (2026-11-02)
+
+
+### Features
+
+* **bus:** add a Postgres outbox and an event schema contract check ([e17209d](https://github.com/manovaspace/orbit-message-bus/commit/e17209d25c31795c335c10c10a1d2790e4f30beb))
+* **bus:** add a Postgres outbox and an event schema contract check ([d4fafaf](https://github.com/manovaspace/orbit-message-bus/commit/d4fafafdf4575775fa2f0646f7c55ed6c6cc79d8))
+* **bus:** add in-process and Redis transports with a conformance suite ([0f655da](https://github.com/manovaspace/orbit-message-bus/commit/0f655dab11ec0ba3c144b1cc210a4dc4592333fd))
+* **bus:** add in-process and Redis transports with a conformance suite ([9eac92f](https://github.com/manovaspace/orbit-message-bus/commit/9eac92f8c1b5d6f6dc3c9481bc8fe68a99855cd8))
+
 ## [Unreleased]
 
 ### Added
