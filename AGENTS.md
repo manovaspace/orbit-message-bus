@@ -1,3 +1,9 @@
+---
+read_with:
+  - handbook/docs/orbit/architecture/data-patterns.md
+  - handbook/docs/orbit/architecture/messaging.md
+---
+
 # orbit-message-bus
 
 Message-bus port and transports — subject naming, envelope enforcement, retry (max 3), DLQ. Status: `beta`. MIT — `github.com/manovaspace/orbit-message-bus`.
