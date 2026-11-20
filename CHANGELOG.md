@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.1](https://github.com/manovaspace/orbit-message-bus/compare/v0.1.0...v0.1.1) (2026-11-20)
+
+
+### Bug Fixes
+
+* **deps:** upgrade Go to 1.27.4 and patch vulnerable modules ([#30](https://github.com/manovaspace/orbit-message-bus/issues/30)) ([32447fe](https://github.com/manovaspace/orbit-message-bus/commit/32447fe4a3b6897105e463410fb47ee8febac541))
+
 ## 0.1.0 (2026-11-02)
 
 
