@@ -4,6 +4,8 @@ read_with:
   - handbook/docs/orbit/architecture/messaging.md
 ---
 
+> **Moved.** This module is now the `messagebus` package of [orbit-kit](https://github.com/manovaspace/orbit-kit) (`github.com/manovaspace/orbit-kit/messagebus`). This repository is archived and gets no more releases. To migrate, replace the import path `github.com/manovaspace/orbit-message-bus` with `github.com/manovaspace/orbit-kit/messagebus` and run `go get github.com/manovaspace/orbit-kit@latest && go mod tidy`.
+
 # orbit-message-bus
 
 Message-bus port and transports — subject naming, envelope enforcement, retry (max 3), DLQ. Status: `beta`. MIT — `github.com/manovaspace/orbit-message-bus`.
