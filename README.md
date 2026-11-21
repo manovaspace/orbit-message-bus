@@ -1,5 +1,7 @@
 # orbit-message-bus
 
+> **Moved.** This module is now the `messagebus` package of [orbit-kit](https://github.com/manovaspace/orbit-kit) (`github.com/manovaspace/orbit-kit/messagebus`). This repository is archived and gets no more releases. To migrate, replace the import path `github.com/manovaspace/orbit-message-bus` with `github.com/manovaspace/orbit-kit/messagebus` and run `go get github.com/manovaspace/orbit-kit@latest && go mod tidy`.
+
 [![CI](https://github.com/manovaspace/orbit-message-bus/actions/workflows/ci.yml/badge.svg)](https://github.com/manovaspace/orbit-message-bus/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
 
